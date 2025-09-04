@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     #3rd party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_yasg',
     
     #custom apps
     'auth_feature',

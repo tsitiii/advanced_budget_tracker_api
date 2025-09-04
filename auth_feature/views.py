@@ -13,6 +13,7 @@ from .serializers import (
     ForgotPasswordSerializer, VerifyResetCodeSerializer, ResetPasswordSerializer
 )
 import random
+from drf_yasg.utils import swagger_auto_schema
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -33,6 +34,11 @@ def generate_code():
 
 class ForgotPasswordView(APIView):
     permission_classes = []
+
+    @swagger_auto_schema(
+        request_body=ForgotPasswordSerializer,
+        responses=({200: 'Reset code sent to email.', 404: 'User not found.'})
+    )
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -54,6 +60,11 @@ class ForgotPasswordView(APIView):
 
 class VerifyResetCodeView(APIView):
     permission_classes = []
+
+    @swagger_auto_schema(
+        request_body=VerifyResetCodeSerializer,
+        responses=({200: 'Code verified.', 400: 'Invalid code or email/Code expired.'})
+    )
     def post(self, request):
         serializer = VerifyResetCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -70,6 +81,11 @@ class VerifyResetCodeView(APIView):
 
 class ResetPasswordView(APIView):
     permission_classes = []
+
+    @swagger_auto_schema(
+        request_body=ResetPasswordSerializer,
+        responses=({200: 'Password reset successful.', 400: 'Invalid code or email/Code expired.'})
+    )
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
