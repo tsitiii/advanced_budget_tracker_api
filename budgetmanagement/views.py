@@ -1,3 +1,42 @@
-from django.shortcuts import render
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import Category, Budget, Transaction
+from .serializers import CategorySerializer, BudgetSerializer, TransactionSerializer
 
-# Create your views here.
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    CRUD operations for Categories
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+
+class BudgetViewSet(viewsets.ModelViewSet):
+    """
+    CRUD operations for Budgets
+    """
+    queryset = Budget.objects.all()
+    serializer_class = BudgetSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['period_type', 'user']
+    search_fields = ['period_type']
+    ordering_fields = ['created_at', 'amount']
+    ordering = ['-created_at']
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    """
+    CRUD operations for Transactions
+    """
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['transaction_type', 'category', 'user', 'date']
+    search_fields = ['notes', 'category__name']
+    ordering_fields = ['date', 'amount', 'created_at']
+    ordering = ['-date', '-created_at']
