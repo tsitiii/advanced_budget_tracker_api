@@ -8,5 +8,5 @@ router.register(r'budgets', BudgetViewSet)
 router.register(r'transactions', TransactionViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('v1/', include(router.urls)),
 ]

@@ -27,7 +27,12 @@ class UserViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
     
+class UsersMeView(APIView):
+    permission_classes = [IsAuthenticated]
     
+    def get(self,request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 def generate_code():
     return str(random.randint(100000, 999999))
