@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, Budget, Transaction
 from .serializers import CategorySerializer, BudgetSerializer, TransactionSerializer
@@ -18,6 +19,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class BudgetViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     """
     CRUD operations for Budgets
     """
@@ -49,6 +51,7 @@ class BudgetViewSet(viewsets.ModelViewSet):
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     """
     CRUD operations for Transactions
     """
