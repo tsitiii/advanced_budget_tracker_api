@@ -21,31 +21,59 @@ class BudgetViewSet(viewsets.ModelViewSet):
     """
     CRUD operations for Budgets
     """
-    queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['period_type', 'user']
+    filterset_fields = ['period_type']  # Remove 'user' from filterable fields
     search_fields = ['period_type']
     ordering_fields = ['created_at', 'amount']
     ordering = ['-created_at']
 
+    def get_queryset(self):
+        return Budget.objects.filter(user=self.request.user)
+
     def perform_create(self, serializer):
-        # Set user and remaining_balance automatically
         amount = serializer.validated_data.get('amount', 0)
         serializer.save(user=self.request.user, remaining_balance=amount)
+
+    def perform_update(self, serializer):
+        # Ensure user cannot change ownership
+        serializer.save(user=self.request.user)
+
+    def get_object(self):
+        # Ensure users can only access their own budgets
+        obj = super().get_object()
+        if obj.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You do not have permission to access this budget.")
+        return obj
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
     """
     CRUD operations for Transactions
     """
-    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['transaction_type', 'category', 'user', 'date']
+    filterset_fields = ['transaction_type', 'category', 'date']  # Remove 'user' from filterable fields
     search_fields = ['notes', 'category__name']
     ordering_fields = ['date', 'amount', 'created_at']
+    ordering = ['-date', '-created_at']
+
+    def get_queryset(self):
+        # Only return transactions belonging to the current user
+        return Transaction.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-    ordering = ['-date', '-created_at']
+
+    def perform_update(self, serializer):
+        # Ensure user cannot change ownership
+        serializer.save(user=self.request.user)
+
+    def get_object(self):
+        # Ensure users can only access their own transactions
+        obj = super().get_object()
+        if obj.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You do not have permission to access this transaction.")
+        return obj
